@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2016 Iain H
  * 
@@ -19,19 +20,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-extern crate futures;
-extern crate tokio_core;
-extern crate tokio_proto;
-extern crate tokio_service;
+use tokio_proto::pipeline::ServerProto;
+use std::io;
 
-mod codec;
-mod protocol;
-mod service;
+use codec::TimeCodec;
 
-use tokio_proto::TcpServer;
+pub struct TimeProto;
 
-fn main() {
-    let addr = "0.0.0.0:9000".parse().unwrap();
-    let server = TcpServer::new(protocol::TimeProto, addr);
-    server.serve(|| Ok(service::Time));
+use tokio_core::io::{Io, Framed};
+
+impl<T: Io + 'static> ServerProto<T> for TimeProto {
+    type Request = u64;
+    type Response = u64;
+
+    type Transport = Framed<T, TimeCodec>;
+    type BindTransport = Result<Self::Transport, io::Error>;
+    fn bind_transport(&self, io: T) -> Self::BindTransport {
+        Ok(io.framed(TimeCodec))
+    }
 }

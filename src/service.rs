@@ -19,19 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-extern crate futures;
-extern crate tokio_core;
-extern crate tokio_proto;
-extern crate tokio_service;
+use futures::{future, Future, BoxFuture};
+use tokio_service::Service;
+use std::io;
 
-mod codec;
-mod protocol;
-mod service;
+pub struct Time;
 
-use tokio_proto::TcpServer;
+impl Service for Time {
+    type Request = u64;
+    type Response = u64;
+    type Error = io::Error;
 
-fn main() {
-    let addr = "0.0.0.0:9000".parse().unwrap();
-    let server = TcpServer::new(protocol::TimeProto, addr);
-    server.serve(|| Ok(service::Time));
+    type Future = BoxFuture<Self::Response, Self::Error>;
+    fn call(&self, req: Self::Request) -> Self::Future {
+        future::ok(req).boxed()
+    }
 }
