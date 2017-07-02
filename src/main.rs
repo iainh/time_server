@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Iain H
+ * Copyright (c) 2016 Iain H
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ fn get_time() -> String {
 
 fn main() {
     let addr = "0.0.0.0:9000".parse().unwrap();
+
     let mut core = Core::new().unwrap();
 
     let listener = TcpListener::bind(&addr, &core.handle()).unwrap();
