@@ -33,7 +33,7 @@ impl Codec for TimeCodec {
 
     fn decode(&mut self, buf: &mut EasyBuf) -> io::Result<Option<Self::In>> {
 
-        if let Some(n) = buf.as_ref().iter().position(|b| *b == b'\n') {
+        if let Some(_) = buf.as_ref().iter().position(|b| *b == b'\n') {
             let length = buf.len();
             let line = buf.drain_to(length);
             // Turn this data into a UTF-8 string and return it
@@ -45,7 +45,7 @@ impl Codec for TimeCodec {
         Ok(None)
     }
 
-    fn encode(&mut self, msg: Self::Out, buf: &mut Vec<u8>) -> io::Result<()> {
+    fn encode(&mut self, _: Self::Out, buf: &mut Vec<u8>) -> io::Result<()> {
         let now = SystemTime::now();
         let seconds = now.duration_since(UNIX_EPOCH).unwrap();
         let time = seconds.as_secs().to_string();
