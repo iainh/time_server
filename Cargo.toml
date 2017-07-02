@@ -1,10 +1,9 @@
 [package]
 name = "time-server"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Iain H. <iain@spiralpoint.org>"]
 
 [dependencies]
-futures = "0.1"
+futures = "0.1.11"
+tokio-io = "0.1.2"
 tokio-core = "0.1"
-tokio-service = "0.1"
-tokio-proto = "0.1"

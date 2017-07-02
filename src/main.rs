@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Iain H
+ * Copyright (c) 2017 Iain H
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,17 +21,35 @@
  */
 extern crate futures;
 extern crate tokio_core;
-extern crate tokio_proto;
-extern crate tokio_service;
+extern crate tokio_io;
 
-mod codec;
-mod protocol;
-mod service;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
-use tokio_proto::TcpServer;
+use futures::stream::Stream;
+use tokio_core::reactor::Core;
+use tokio_core::net::TcpListener;
+
+fn get_time() -> String {
+    let now = SystemTime::now();
+    let seconds = now.duration_since(UNIX_EPOCH).unwrap();
+    seconds.as_secs().to_string()
+}
 
 fn main() {
     let addr = "0.0.0.0:9000".parse().unwrap();
-    let server = TcpServer::new(protocol::TimeProto, addr);
-    server.serve(|| Ok(service::Time));
+    let mut core = Core::new().unwrap();
+
+    let listener = TcpListener::bind(&addr, &core.handle()).unwrap();
+
+    let clients = listener.incoming();
+    let times = clients.and_then(|(socket, _peer_addr)| {
+        tokio_io::io::write_all(socket, get_time())
+    });
+
+    let server = times.for_each(|(_socket, _welcome)| {
+        Ok(())
+    });
+
+    core.run(server).unwrap();
 }
